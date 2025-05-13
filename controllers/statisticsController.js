@@ -13,14 +13,16 @@ exports.obtenerResumen = async (req, res) => {
     const [[{ totalProjects }]] = await db.query('SELECT COUNT(*) AS totalProjects FROM proyecto')
 
     const [[{ projectsOnTime }]] = await db.query(`
-      SELECT COUNT(*) AS projectsOnTime
-      FROM proyecto
-      WHERE estado = 'Finalizado'
-        AND fecha_entrega >= (
-          SELECT COALESCE(MAX(e.fecha_fin), fecha_entrega)
-          FROM etapa e WHERE e.id_proyecto = Proyecto.id_proyecto
-        )
-    `)
+  SELECT COUNT(*) AS projectsOnTime
+  FROM proyecto p
+  WHERE estado = 'Finalizado'
+    AND fecha_entrega >= (
+      SELECT COALESCE(MAX(e.fecha_fin), p.fecha_entrega)
+      FROM etapa e
+      WHERE e.id_proyecto = p.id_proyecto
+    )
+`)
+    
 
     const [[{ totalPhases }]] = await db.query('SELECT COUNT(*) AS totalPhases FROM etapa')
 
