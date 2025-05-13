@@ -8,7 +8,7 @@ exports.generarSugerencias = async (req, res) => {
   try {
     const [asignaciones] = await db.query(`
       SELECT u.id_usuario, u.nombre_usuario, e.fecha_inicio, e.fecha_fin, e.horas_estimadas
-      FROM Asignacion a
+      FROM asignacion a
       JOIN Usuario u ON a.id_usuario = u.id_usuario
       JOIN Etapa e ON a.id_etapa = e.id_etapa
     `)
@@ -37,8 +37,8 @@ exports.generarSugerencias = async (req, res) => {
 
     const [etapasCortas] = await db.query(`
       SELECT e.id_etapa, e.id_proyecto, e.nombre_etapa, e.horas_estimadas, e.fecha_inicio, p.nombre_proyecto
-      FROM Etapa e
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM etapa e
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       WHERE e.horas_estimadas <= 4 AND e.estado_etapa = 'pendiente'
     `)
 
@@ -86,8 +86,8 @@ exports.tareasCortasDisponibles = async (req, res) => {
         e.horas_estimadas,
         e.estado_etapa,
         p.nombre_proyecto
-      FROM Etapa e
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM etapa e
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       WHERE e.horas_estimadas <= 3 AND e.estado_etapa = 'pendiente'
     `)
 
