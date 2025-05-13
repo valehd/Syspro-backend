@@ -71,6 +71,6 @@ app.get('/', (req, res) => {
 // Inicialización del servidor
 // ─────────────────────────────────────────────────────────────
 
-app.listen(3001, () => {
-  console.log('Backend iniciado en http://localhost:3001')
+app.listen(PORT, () => {
+  console.log(`Backend iniciado en http://localhost:${PORT}`);
 })
