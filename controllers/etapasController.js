@@ -32,7 +32,7 @@ exports.agregarEtapa = async (req, res) => {
       [nombre_etapa, id_proyecto]
     )
 
-    const [[proy]] = await db.query('SELECT nombre_proyecto FROM Proyecto WHERE id_proyecto = ?', [id_proyecto])
+    const [[proy]] = await db.query('SELECT nombre_proyecto FROM proyecto WHERE id_proyecto = ?', [id_proyecto])
 
     await registrarEnBitacora(
       id_usuario,
@@ -71,7 +71,7 @@ exports.agregarEtapaDesdeDetalles = async (req, res) => {
 
     const id_etapa = result.insertId
 
-    const [[proy]] = await db.query('SELECT nombre_proyecto FROM Proyecto WHERE id_proyecto = ?', [id_proyecto])
+    const [[proy]] = await db.query('SELECT nombre_proyecto FROM proyecto WHERE id_proyecto = ?', [id_proyecto])
 
     await registrarEnBitacora(
       id_usuario,
@@ -134,7 +134,7 @@ exports.editarEtapa = async (req, res) => {
   }
 
   try {
-    const [[etapaActual]] = await db.query('SELECT * FROM Etapa WHERE id_etapa = ?', [id_etapa])
+    const [[etapaActual]] = await db.query('SELECT * FROM etapa WHERE id_etapa = ?', [id_etapa])
     if (!etapaActual) return res.status(404).json({ error: 'Etapa no encontrada' })
 
     const campos = { nombre_etapa, estado_etapa, fecha_inicio, fecha_fin, horas_estimadas }
@@ -193,7 +193,7 @@ exports.eliminarEtapa = async (req, res) => {
   }
 
   try {
-    await db.query('DELETE FROM Asignacion WHERE id_etapa = ?', [id_etapa])
+    await db.query('DELETE FROM asignacion WHERE id_etapa = ?', [id_etapa])
 
     const [[data]] = await db.query(`
       SELECT e.nombre_etapa, p.nombre_proyecto, p.id_proyecto
