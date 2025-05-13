@@ -46,7 +46,7 @@ const dashboardRoutes = require('./routes/dashboard')
 
 app.use('/projects', proyectoRoutes)
 app.use('/usuarios', usuarioRoutes)
-app.use('/login', usuarioRoutes) // Ruta alternativa para login (reutiliza controlador de usuarios)
+
 app.use('/etapas', etapaRoutes)
 app.use('/tecnicos', tecnicoRoutes)
 app.use('/bitacora', bitacoraRoutes)
