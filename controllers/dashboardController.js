@@ -19,11 +19,11 @@ exports.obtenerAlertas = async (req, res) => {
     // Se consideran exitosos si la fecha de entrega del proyecto es mayor o igual a la fecha fin de la última etapa.
     const [proyectosExitosos] = await db.query(`
       SELECT p.nombre_proyecto
-      FROM Proyecto p
+      FROM proyecto p
       WHERE p.estado = 'Finalizado'
         AND p.fecha_entrega >= (
           SELECT MAX(e.fecha_fin)
-          FROM Etapa e
+          FROM etapa e
           WHERE e.id_proyecto = p.id_proyecto
         )
     `)
@@ -37,8 +37,8 @@ exports.obtenerAlertas = async (req, res) => {
     // ─────────────────────────────────────────────────────────────
     const [etapasConAdvertencia] = await db.query(`
       SELECT e.nombre_etapa, p.nombre_proyecto
-      FROM Etapa e
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM etapa e
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       LEFT JOIN (
         SELECT id_etapa, SUM(horas_trabajadas) AS horas_real
         FROM registrohoras
@@ -57,9 +57,9 @@ exports.obtenerAlertas = async (req, res) => {
     // ─────────────────────────────────────────────────────────────
     const [etapasSinTecnico] = await db.query(`
       SELECT e.nombre_etapa, p.nombre_proyecto
-      FROM Etapa e
+      FROM etapa e
       JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
-      LEFT JOIN Asignacion a ON e.id_etapa = a.id_etapa
+      LEFT JOIN asignacion a ON e.id_etapa = a.id_etapa
       WHERE (e.estado_etapa = 'pendiente' OR e.estado_etapa = 'activo')
         AND a.id_usuario IS NULL
     `)
