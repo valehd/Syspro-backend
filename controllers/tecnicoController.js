@@ -34,3 +34,20 @@ exports.obtenerEtapasPorTecnico = async (req, res) => {
     res.status(500).json({ error: 'Error interno al obtener etapas asignadas' })
   }
 }
+
+/**
+ * Devuelve todos los técnicos (usuarios con rol "tecnico")
+ */
+exports.obtenerTecnicos = async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT id_usuario, nombre_usuario 
+      FROM usuario 
+      WHERE rol = 'tecnico'
+    `)
+    res.json(rows)
+  } catch (err) {
+    console.error('Error al obtener técnicos:', err)
+    res.status(500).json({ error: 'Error al obtener técnicos' })
+  }
+}
