@@ -16,30 +16,30 @@ exports.asignarEtapa = async (req, res) => {
 
   try {
     // Obtener nombre del técnico
-    const [[tecnico]] = await db.query('SELECT nombre_usuario FROM Usuario WHERE id_usuario = ?', [id_usuario])
+    const [[tecnico]] = await db.query('SELECT nombre_usuario FROM usuario WHERE id_usuario = ?', [id_usuario])
     const nombreTecnico = tecnico?.nombre_usuario || `ID ${id_usuario}`
 
     // Obtener información de etapa y proyecto
     const [[info]] = await db.query(`
       SELECT e.nombre_etapa, p.nombre_proyecto, p.id_proyecto
-      FROM Etapa e
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM etapa e
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       WHERE e.id_etapa = ?
     `, [id_etapa])
 
     const descripcion = `Asignó a "${nombreTecnico}" la etapa "${info.nombre_etapa}" del proyecto "${info.nombre_proyecto}" (ID: ${info.id_proyecto})`
 
     // Revisar si ya existe asignación
-    const [existente] = await db.query('SELECT * FROM Asignacion WHERE id_etapa = ?', [id_etapa])
+    const [existente] = await db.query('SELECT * FROM asignacion WHERE id_etapa = ?', [id_etapa])
 
     if (existente.length > 0) {
-      await db.query('UPDATE Asignacion SET id_usuario = ? WHERE id_etapa = ?', [id_usuario, id_etapa])
+      await db.query('UPDATE asignacion SET id_usuario = ? WHERE id_etapa = ?', [id_usuario, id_etapa])
       await registrarEnBitacora(autor, `Actualizó asignación: ${descripcion}`)
       return res.status(200).json({ message: 'Técnico reasignado correctamente' })
     }
 
     // Crear nueva asignación
-    await db.query('INSERT INTO Asignacion (id_usuario, id_etapa) VALUES (?, ?)', [id_usuario, id_etapa])
+    await db.query('INSERT INTO asignacion (id_usuario, id_etapa) VALUES (?, ?)', [id_usuario, id_etapa])
     await registrarEnBitacora(autor, `Nueva asignación: ${descripcion}`)
 
     res.status(201).json({ message: 'Técnico asignado correctamente' })
@@ -61,22 +61,22 @@ exports.actualizarAsignacion = async (req, res) => {
   }
 
   try {
-    const [[asig]] = await db.query('SELECT id_etapa FROM Asignacion WHERE id_asignacion = ?', [id_asignacion])
+    const [[asig]] = await db.query('SELECT id_etapa FROM asignacion WHERE id_asignacion = ?', [id_asignacion])
     if (!asig) return res.status(404).json({ error: 'Asignación no encontrada' })
 
     const id_etapa = asig.id_etapa
 
     const [[etapaInfo]] = await db.query(`
       SELECT e.nombre_etapa, p.nombre_proyecto, p.id_proyecto
-      FROM Etapa e
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM etapa e
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       WHERE e.id_etapa = ?
     `, [id_etapa])
 
-    const [[usuario]] = await db.query('SELECT nombre_usuario FROM Usuario WHERE id_usuario = ?', [id_usuario])
+    const [[usuario]] = await db.query('SELECT nombre_usuario FROM usuario WHERE id_usuario = ?', [id_usuario])
     const nombreTecnico = usuario?.nombre_usuario || `ID ${id_usuario}`
 
-    await db.query('UPDATE Asignacion SET id_usuario = ? WHERE id_asignacion = ?', [id_usuario, id_asignacion])
+    await db.query('UPDATE asignacion SET id_usuario = ? WHERE id_asignacion = ?', [id_usuario, id_asignacion])
 
     const descripcion = `Actualizó la asignación: "${nombreTecnico}" ahora está asignado a la etapa "${etapaInfo.nombre_etapa}" del proyecto "${etapaInfo.nombre_proyecto}" (ID: ${etapaInfo.id_proyecto})`
     await registrarEnBitacora(autor, descripcion)
@@ -101,10 +101,10 @@ exports.obtenerAsignaciones = async (req, res) => {
         a.id_etapa,
         e.nombre_etapa,
         p.nombre_proyecto
-      FROM Asignacion a
-      JOIN Usuario u ON a.id_usuario = u.id_usuario
-      JOIN Etapa e ON a.id_etapa = e.id_etapa
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM asignacion a
+      JOIN usuario u ON a.id_usuario = u.id_usuario
+      JOIN etapa e ON a.id_etapa = e.id_etapa
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
     `)
 
     res.status(200).json(rows)
@@ -126,8 +126,8 @@ exports.obtenerAsignacionPorEtapa = async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT a.id_asignacion, a.id_usuario, u.nombre_usuario
-      FROM Asignacion a
-      JOIN Usuario u ON a.id_usuario = u.id_usuario
+      FROM asignacion a
+      JOIN usuario u ON a.id_usuario = u.id_usuario
       WHERE a.id_etapa = ?
     `, [id_etapa])
 
