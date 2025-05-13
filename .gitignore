@@ -1,0 +1,5 @@
+# No subir dependencias ni archivos sensibles
+node_modules/
+.env
+*.log
+.DS_Store
