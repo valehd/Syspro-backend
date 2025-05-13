@@ -21,11 +21,11 @@ exports.crearComentario = async (req, res) => {
   }
 
   try {
-    await db.query(
-      `INSERT INTO comentario (id_etapa, id_usuario, tipo, contenido, fecha)
-       VALUES (?, ?, ?, ?, NOW())`,
-      [id_etapa, id_usuario, tipo, contenido.trim()]
-    )
+  await db.query(
+  `INSERT INTO comentario (id_etapa, id_usuario, tipo, contenido)
+   VALUES (?, ?, ?, ?)`,
+  [id_etapa, id_usuario, tipo, contenido.trim()]
+)
 
     res.status(201).json({ message: 'Comentario guardado correctamente' })
   } catch (err) {
