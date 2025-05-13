@@ -281,7 +281,7 @@ exports.obtenerLogProyecto = async (req, res) => {
       FROM comentario c
       LEFT JOIN etapa e ON c.id_etapa = e.id_etapa
       LEFT JOIN proyecto p ON e.id_proyecto = p.id_proyecto
-      JOIN Usuario u ON c.id_usuario = u.id_usuario
+      JOIN usuario u ON c.id_usuario = u.id_usuario
       WHERE (p.id_proyecto = ? OR c.id_etapa IS NULL)
     `, [idProyecto])
 
