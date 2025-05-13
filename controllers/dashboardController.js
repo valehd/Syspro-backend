@@ -58,7 +58,7 @@ exports.obtenerAlertas = async (req, res) => {
     const [etapasSinTecnico] = await db.query(`
       SELECT e.nombre_etapa, p.nombre_proyecto
       FROM etapa e
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       LEFT JOIN asignacion a ON e.id_etapa = a.id_etapa
       WHERE (e.estado_etapa = 'pendiente' OR e.estado_etapa = 'activo')
         AND a.id_usuario IS NULL
