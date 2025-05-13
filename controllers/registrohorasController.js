@@ -14,22 +14,22 @@ exports.iniciarRegistro = async (req, res) => {
   try {
     // Verifica si ya existe una asignación
     const [asignacion] = await db.query(
-      'SELECT * FROM Asignacion WHERE id_usuario = ? AND id_etapa = ?',
+      'SELECT * FROM asignacion WHERE id_usuario = ? AND id_etapa = ?',
       [id_usuario, id_etapa]
     )
 
     // Si no existe, crea la asignación automáticamente y registra en bitácora
     if (asignacion.length === 0) {
       await db.query(
-        'INSERT INTO Asignacion (id_usuario, id_etapa) VALUES (?, ?)',
+        'INSERT INTO asignacion (id_usuario, id_etapa) VALUES (?, ?)',
         [id_usuario, id_etapa]
       )
 
       const [[info]] = await db.query(`
         SELECT e.nombre_etapa, p.nombre_proyecto, p.id_proyecto, u.nombre_usuario
-        FROM Etapa e
-        JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
-        JOIN Usuario u ON u.id_usuario = ?
+        FROM etapa e
+        JOIN proyecto p ON e.id_proyecto = p.id_proyecto
+        JOIN usuario u ON u.id_usuario = ?
         WHERE e.id_etapa = ?`,
         [id_usuario, id_etapa]
       )
@@ -114,11 +114,11 @@ exports.obtenerTareasPorTecnico = async (req, res) => {
         ELSE e.estado_etapa
       END AS status,
       MAX(c.contenido) AS comment
-    FROM Asignacion a
-    JOIN Etapa e ON a.id_etapa = e.id_etapa
-    JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+    FROM asignacion a
+    JOIN etapa e ON a.id_etapa = e.id_etapa
+    JOIN proyecto p ON e.id_proyecto = p.id_proyecto
     LEFT JOIN registrohoras r ON e.id_etapa = r.id_etapa
-    LEFT JOIN Comentario c ON c.id_etapa = e.id_etapa
+    LEFT JOIN comentario c ON c.id_etapa = e.id_etapa
     WHERE a.id_usuario = ?
     GROUP BY e.id_etapa
   `
