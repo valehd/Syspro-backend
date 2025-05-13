@@ -10,11 +10,11 @@ const db = require('../config/db')
  */
 exports.obtenerResumen = async (req, res) => {
   try {
-    const [[{ totalProjects }]] = await db.query('SELECT COUNT(*) AS totalProjects FROM Proyecto')
+    const [[{ totalProjects }]] = await db.query('SELECT COUNT(*) AS totalProjects FROM proyecto')
 
     const [[{ projectsOnTime }]] = await db.query(`
       SELECT COUNT(*) AS projectsOnTime
-      FROM Proyecto
+      FROM proyecto
       WHERE estado = 'Finalizado'
         AND fecha_entrega >= (
           SELECT COALESCE(MAX(e.fecha_fin), fecha_entrega)
@@ -26,7 +26,7 @@ exports.obtenerResumen = async (req, res) => {
 
     const [[{ phasesOnTime }]] = await db.query(`
       SELECT COUNT(*) AS phasesOnTime
-      FROM Etapa e
+      FROM etapa e
       LEFT JOIN (
         SELECT id_etapa, SUM(horas_trabajadas) AS horas_real
         FROM registrohoras
@@ -37,7 +37,7 @@ exports.obtenerResumen = async (req, res) => {
 
     const [[{ delayedPhases }]] = await db.query(`
       SELECT COUNT(*) AS delayedPhases
-      FROM Etapa e
+      FROM etapa e
       LEFT JOIN (
         SELECT id_etapa, SUM(horas_trabajadas) AS horas_real
         FROM registrohoras
@@ -110,9 +110,9 @@ exports.obtenerComparacionHoras = async (req, res) => {
         e.horas_estimadas AS estimadas,
         IFNULL(SUM(r.horas_trabajadas), 0) AS reales,
         p.nombre_proyecto
-      FROM Etapa e
+      FROM etapa e
       LEFT JOIN registrohoras r ON e.id_etapa = r.id_etapa
-      LEFT JOIN Asignacion a ON e.id_etapa = a.id_etapa
+      LEFT JOIN asignacion a ON e.id_etapa = a.id_etapa
       JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
       ${whereSQL}
       GROUP BY e.id_etapa
@@ -145,7 +145,7 @@ exports.obtenerMotivosRetraso = async (req, res) => {
     const valores = []
 
     if (tecnico) {
-      condiciones.push('e.id_etapa IN (SELECT id_etapa FROM Asignacion WHERE id_usuario = ?)')
+      condiciones.push('e.id_etapa IN (SELECT id_etapa FROM asignacion WHERE id_usuario = ?)')
       valores.push(tecnico)
     }
     if (proyecto) {
@@ -161,9 +161,9 @@ exports.obtenerMotivosRetraso = async (req, res) => {
 
     const [rows] = await db.query(`
       SELECT c.contenido AS motivo, COUNT(*) AS cantidad
-      FROM Comentario c
-      JOIN Etapa e ON c.id_etapa = e.id_etapa
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM comentario c
+      JOIN etapa e ON c.id_etapa = e.id_etapa
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       WHERE c.contenido IS NOT NULL AND c.contenido != ''
       ${whereSQL}
       GROUP BY c.contenido
