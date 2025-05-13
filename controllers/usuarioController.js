@@ -13,7 +13,7 @@ exports.login = async (req, res) => {
   }
 
   try {
-    const [results] = await db.query('SELECT * FROM Usuario WHERE nombre_usuario = ?', [username])
+    const [results] = await db.query('SELECT * FROM usuario WHERE nombre_usuario = ?', [username])
 
     if (results.length === 0) {
       return res.status(401).json({ success: false, message: 'Usuario no encontrado' })
@@ -46,7 +46,7 @@ exports.obtenerUsuarioPorId = async (req, res) => {
 
   try {
     const [rows] = await db.query(
-      'SELECT nombre_usuario, rol FROM Usuario WHERE id_usuario = ?',
+      'SELECT nombre_usuario, rol FROM usuario WHERE id_usuario = ?',
       [id]
     )
 
@@ -100,7 +100,7 @@ exports.crearUsuario = async (req, res) => {
   try {
     // Verificar unicidad del nombre de usuario
     const [existe] = await db.query(
-      'SELECT * FROM Usuario WHERE nombre_usuario = ?',
+      'SELECT * FROM usuario WHERE nombre_usuario = ?',
       [nombre_usuario]
     )
     if (existe.length > 0) {
@@ -112,7 +112,7 @@ exports.crearUsuario = async (req, res) => {
 
     // Insertar el nuevo usuario
     await db.query(
-      `INSERT INTO Usuario (nombre, apellido, nombre_usuario, contraseña_hash, rol, telefono, correo)
+      `INSERT INTO usuario (nombre, apellido, nombre_usuario, contraseña_hash, rol, telefono, correo)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [nombre, apellido, nombre_usuario, contraseña_hash, rol, telefono, correo]
     )
