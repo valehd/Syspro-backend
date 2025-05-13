@@ -18,11 +18,11 @@ exports.obtenerResumen = async (req, res) => {
       WHERE estado = 'Finalizado'
         AND fecha_entrega >= (
           SELECT COALESCE(MAX(e.fecha_fin), fecha_entrega)
-          FROM Etapa e WHERE e.id_proyecto = Proyecto.id_proyecto
+          FROM etapa e WHERE e.id_proyecto = Proyecto.id_proyecto
         )
     `)
 
-    const [[{ totalPhases }]] = await db.query('SELECT COUNT(*) AS totalPhases FROM Etapa')
+    const [[{ totalPhases }]] = await db.query('SELECT COUNT(*) AS totalPhases FROM etapa')
 
     const [[{ phasesOnTime }]] = await db.query(`
       SELECT COUNT(*) AS phasesOnTime
