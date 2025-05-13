@@ -15,10 +15,10 @@ exports.getDaySchedule = async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT u.nombre_usuario, p.nombre_proyecto, e.nombre_etapa, e.fecha_inicio, e.fecha_fin
-      FROM Asignacion a
-      JOIN Usuario u ON a.id_usuario = u.id_usuario
-      JOIN Etapa e ON a.id_etapa = e.id_etapa
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM asignacion a
+      JOIN usuario u ON a.id_usuario = u.id_usuario
+      JOIN etapa e ON a.id_etapa = e.id_etapa
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       WHERE ? BETWEEN e.fecha_inicio AND e.fecha_fin
     `, [date])
 
@@ -77,10 +77,10 @@ exports.getWeekSchedule = async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT u.nombre_usuario, p.nombre_proyecto, e.fecha_inicio, e.fecha_fin
-      FROM Asignacion a
-      JOIN Usuario u ON a.id_usuario = u.id_usuario
-      JOIN Etapa e ON a.id_etapa = e.id_etapa
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM asignacion a
+      JOIN usuario u ON a.id_usuario = u.id_usuario
+      JOIN etapa e ON a.id_etapa = e.id_etapa
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
     `)
 
     const tecnicos = [...new Set(rows.map(r => r.nombre_usuario))]
@@ -126,8 +126,8 @@ exports.getMonthSchedule = async (req, res) => {
   }
 
   try {
-    const [proyectos] = await db.query(`SELECT id_proyecto, nombre_proyecto, estado FROM Proyecto`)
-    const [etapas] = await db.query(`SELECT id_proyecto, fecha_inicio, fecha_fin FROM Etapa`)
+    const [proyectos] = await db.query(`SELECT id_proyecto, nombre_proyecto, estado FROM proyecto`)
+    const [etapas] = await db.query(`SELECT id_proyecto, fecha_inicio, fecha_fin FROM etapa`)
 
     const proyectosResumen = proyectos.map(p => {
       const resumenSemanal = {}
