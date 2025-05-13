@@ -113,7 +113,7 @@ exports.obtenerComparacionHoras = async (req, res) => {
       FROM etapa e
       LEFT JOIN registrohoras r ON e.id_etapa = r.id_etapa
       LEFT JOIN asignacion a ON e.id_etapa = a.id_etapa
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       ${whereSQL}
       GROUP BY e.id_etapa
     `, valores)
