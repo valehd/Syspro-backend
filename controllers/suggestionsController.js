@@ -9,7 +9,7 @@ exports.generarSugerencias = async (req, res) => {
     const [asignaciones] = await db.query(`
       SELECT u.id_usuario, u.nombre_usuario, e.fecha_inicio, e.fecha_fin, e.horas_estimadas
       FROM asignacion a
-      JOIN Usuario u ON a.id_usuario = u.id_usuario
+      JOIN usuario u ON a.id_usuario = u.id_usuario
       JOIN etapa e ON a.id_etapa = e.id_etapa
     `)
 
