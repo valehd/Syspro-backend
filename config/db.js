@@ -1,5 +1,5 @@
 // config/db.js — Configuración y conexión a la base de datos usando MySQL2 con soporte para promesas
-require('dotenv').config()
+
 
 const mysql = require('mysql2/promise') // Cliente MySQL compatible con async/await
 
