@@ -13,8 +13,8 @@ exports.obtenerBitacora = async (req, res) => {
         b.accion, 
         DATE_FORMAT(b.fecha_hora, '%Y-%m-%dT%H:%i:%s') AS fecha_hora, 
         u.nombre_usuario
-      FROM Bitacora b
-      LEFT JOIN Usuario u ON b.id_usuario = u.id_usuario
+      FROM bitacora b
+      LEFT JOIN usuario u ON b.id_usuario = u.id_usuario
       ORDER BY b.fecha_hora DESC
     `)
 
@@ -41,7 +41,7 @@ exports.registrarBitacora = async (req, res) => {
 
   try {
     await db.query(
-      `INSERT INTO Bitacora (id_usuario, accion, id_proyecto, fecha_hora) VALUES (?, ?, ?, NOW())`,
+      `INSERT INTO bitacora (id_usuario, accion, id_proyecto, fecha_hora) VALUES (?, ?, ?, NOW())`,
       [id_usuario, accion, id_proyecto]
     )
 
