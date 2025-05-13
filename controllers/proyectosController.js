@@ -75,7 +75,7 @@ exports.crearProyecto = async (req, res) => {
       // Asignación opcional
       if (stage.technician) {
         await connection.query(`
-          INSERT INTO Asignacion (id_etapa, id_usuario)
+          INSERT INTO asignacion (id_etapa, id_usuario)
           VALUES (?, ?)
         `, [etapaId, stage.technician])
       }
@@ -98,7 +98,7 @@ exports.crearProyecto = async (req, res) => {
  */
 exports.obtenerTodosLosProyectos = async (req, res) => {
   try {
-    const [results] = await db.query('SELECT * FROM Proyecto')
+    const [results] = await db.query('SELECT * FROM proyecto')
     res.json(results)
   } catch (err) {
     console.error('Error al obtener proyectos:', err)
