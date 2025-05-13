@@ -20,9 +20,9 @@ exports.obtenerEtapasPorTecnico = async (req, res) => {
       p.nombre_proyecto,
       p.cliente,
       p.fecha_entrega
-    FROM Asignacion a
-    JOIN Etapa e ON a.id_etapa = e.id_etapa
-    JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+    FROM asignacion a
+    JOIN etapa e ON a.id_etapa = e.id_etapa
+    JOIN proyecto p ON e.id_proyecto = p.id_proyecto
     WHERE a.id_usuario = ?
   `
 
