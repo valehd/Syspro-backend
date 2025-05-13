@@ -31,4 +31,24 @@ router.get('/:id', usuarioController.obtenerUsuarioPorId)
  */
 router.post('/crear', usuarioController.crearUsuario)
 
+
+/**
+ * borrar despues de probar
+ */
+const router = require('express').Router()
+const db = require('../config/db')
+
+router.get('/ping-db', async (req, res) => {
+  try {
+    const [result] = await db.query('SELECT NOW() as now')
+    res.json({ success: true, timestamp: result[0].now })
+  } catch (err) {
+    console.error('❌ Error al conectar a la base de datos:', err)
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
+module.exports = router
+
+
 module.exports = router
