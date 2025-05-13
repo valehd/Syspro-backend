@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const usuarioController = require('../controllers/usuarioController')
+const db = require('../config/db')
 
 /**
  * POST /login
@@ -31,13 +32,9 @@ router.get('/:id', usuarioController.obtenerUsuarioPorId)
  */
 router.post('/crear', usuarioController.crearUsuario)
 
-
 /**
- * borrar despues de probar
+ * GET /ping-db (solo para pruebas de conexión)
  */
-const router = require('express').Router()
-const db = require('../config/db')
-
 router.get('/ping-db', async (req, res) => {
   try {
     const [result] = await db.query('SELECT NOW() as now')
@@ -47,8 +44,5 @@ router.get('/ping-db', async (req, res) => {
     res.status(500).json({ success: false, error: err.message })
   }
 })
-
-module.exports = router
-
 
 module.exports = router
