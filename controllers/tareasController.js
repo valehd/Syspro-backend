@@ -25,7 +25,7 @@ exports.crearTarea = async (req, res) => {
 
   try {
     await db.query(`
-      INSERT INTO Tarea (nombre_tarea, id_etapa, fecha_inicio, fecha_fin, horas_estimadas, estado)
+      INSERT INTO tarea (nombre_tarea, id_etapa, fecha_inicio, fecha_fin, horas_estimadas, estado)
       VALUES (?, ?, ?, ?, ?, ?)
     `, [nombre_tarea, id_etapa, fecha_inicio, fecha_fin, horas_estimadas, estado])
 
@@ -47,7 +47,7 @@ exports.obtenerTareas = async (req, res) => {
   }
 
   try {
-    const [tasks] = await db.query('SELECT * FROM Tarea WHERE id_proyecto = ?', [id_proyecto])
+    const [tasks] = await db.query('SELECT * FROM tarea WHERE id_proyecto = ?', [id_proyecto])
     res.json(tasks)
   } catch (err) {
     console.error('Error al obtener tareas:', err)
@@ -66,7 +66,7 @@ exports.obtenerTareaPorId = async (req, res) => {
   }
 
   try {
-    const [task] = await db.query('SELECT * FROM Tarea WHERE id_tarea = ?', [id])
+    const [task] = await db.query('SELECT * FROM tarea WHERE id_tarea = ?', [id])
     res.json(task)
   } catch (err) {
     console.error('Error al obtener tarea:', err)
@@ -103,7 +103,7 @@ exports.editarTarea = async (req, res) => {
 
   try {
     await db.query(`
-      UPDATE Tarea 
+      UPDATE tarea 
       SET nombre_tarea = ?, fecha_inicio = ?, fecha_fin = ?, horas_estimadas = ?, estado = ?
       WHERE id_tarea = ?
     `, [nombre_tarea, fecha_inicio, fecha_fin, horas_estimadas, estado, id])
@@ -137,10 +137,10 @@ exports.obtenerTareasPorTecnico = async (req, res) => {
         e.estado_etapa AS status,
         CASE WHEN e.estado_etapa = 'finalizado' THEN 'Yes' ELSE 'No' END AS Finalizado,
         MAX(c.contenido) AS comment
-      FROM Asignacion a
-      JOIN Etapa e ON a.id_etapa = e.id_etapa
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
-      LEFT JOIN Comentario c ON c.id_etapa = e.id_etapa
+      FROM asignacion a
+      JOIN etapa e ON a.id_etapa = e.id_etapa
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
+      LEFT JOIN comentario c ON c.id_etapa = e.id_etapa
       WHERE a.id_usuario = ?
       GROUP BY e.id_etapa
     `, [tecnicoId])
