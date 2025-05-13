@@ -10,7 +10,7 @@ exports.generarSugerencias = async (req, res) => {
       SELECT u.id_usuario, u.nombre_usuario, e.fecha_inicio, e.fecha_fin, e.horas_estimadas
       FROM asignacion a
       JOIN Usuario u ON a.id_usuario = u.id_usuario
-      JOIN Etapa e ON a.id_etapa = e.id_etapa
+      JOIN etapa e ON a.id_etapa = e.id_etapa
     `)
 
     const disponibilidad = {}
