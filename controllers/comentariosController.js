@@ -22,7 +22,7 @@ exports.crearComentario = async (req, res) => {
 
   try {
     await db.query(
-      `INSERT INTO Comentario (id_etapa, id_usuario, tipo, contenido, fecha)
+      `INSERT INTO comentario (id_etapa, id_usuario, tipo, contenido, fecha)
        VALUES (?, ?, ?, ?, NOW())`,
       [id_etapa, id_usuario, tipo, contenido.trim()]
     )
@@ -54,7 +54,7 @@ exports.obtenerComentariosPorEtapa = async (req, res) => {
          tipo, 
          contenido,
          DATE_FORMAT(fecha, '%Y-%m-%dT%H:%i:%s') AS fecha
-       FROM Comentario
+       FROM comentario
        WHERE id_etapa = ?`,
       [idEtapa]
     )
