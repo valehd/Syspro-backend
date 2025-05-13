@@ -51,7 +51,7 @@ exports.crearProyecto = async (req, res) => {
 
     // Inserta el proyecto
     const [result] = await connection.query(`
-      INSERT INTO Proyecto (nombre_proyecto, cliente, fecha_inicio, fecha_entrega, estado, tipo_proyecto)
+      INSERT INTO proyecto (nombre_proyecto, cliente, fecha_inicio, fecha_entrega, estado, tipo_proyecto)
       VALUES (?, ?, ?, ?, 'activo', ?)
     `, [name, client, startDate, estimatedEndDate, projectType])
 
@@ -59,14 +59,14 @@ exports.crearProyecto = async (req, res) => {
 
     // Bitácora de creación
     await connection.query(`
-      INSERT INTO Bitacora (id_usuario, accion, id_proyecto, fecha_hora)
+      INSERT INTO bitacora (id_usuario, accion, id_proyecto, fecha_hora)
       VALUES (?, ?, ?, NOW())
     `, [id_usuario, `Creó el proyecto "${name}" (ID: ${projectId})`, projectId])
 
     // Inserta las etapas
     for (const stage of stages) {
       const [etapaRes] = await connection.query(`
-        INSERT INTO Etapa (nombre_etapa, estado_etapa, fecha_inicio, fecha_fin, horas_estimadas, id_proyecto)
+        INSERT INTO etapa (nombre_etapa, estado_etapa, fecha_inicio, fecha_fin, horas_estimadas, id_proyecto)
         VALUES (?, 'pendiente', ?, ?, ?, ?)
       `, [stage.name, stage.startDate || startDate, stage.dueDate, stage.hours, projectId])
 
@@ -162,7 +162,7 @@ exports.editarProyecto = async (req, res) => {
   }
 
   try {
-    const [rows] = await db.query('SELECT * FROM Proyecto WHERE id_proyecto = ?', [id])
+    const [rows] = await db.query('SELECT * FROM proyecto WHERE id_proyecto = ?', [id])
     if (!rows.length) return res.status(404).json({ error: 'Proyecto no encontrado' })
 
     const original = rows[0]
@@ -191,13 +191,13 @@ exports.editarProyecto = async (req, res) => {
       return res.status(400).json({ error: 'No hay cambios para aplicar' })
     }
 
-    const query = `UPDATE Proyecto SET ${updates.join(', ')} WHERE id_proyecto = ?`
+    const query = `UPDATE proyecto SET ${updates.join(', ')} WHERE id_proyecto = ?`
     values.push(id)
     await db.query(query, values)
 
     const detalle = cambios.length ? `Cambios: ${cambios.join(', ')}` : 'Cambios aplicados'
     await db.query(`
-      INSERT INTO Bitacora (id_usuario, id_proyecto, accion, fecha_hora)
+      INSERT INTO bitacora (id_usuario, id_proyecto, accion, fecha_hora)
       VALUES (?, ?, ?, NOW())
     `, [id_usuario, id, `Editó el proyecto "${original.nombre_proyecto}" (ID: ${id}) — ${detalle}`])
 
@@ -216,16 +216,16 @@ exports.eliminarProyecto = async (req, res) => {
   const id_usuario = req.query.id_usuario
 
   try {
-    const [rows] = await db.query('SELECT nombre_proyecto FROM Proyecto WHERE id_proyecto = ?', [id])
+    const [rows] = await db.query('SELECT nombre_proyecto FROM proyecto WHERE id_proyecto = ?', [id])
     const nombre = rows[0]?.nombre_proyecto || 'Proyecto desconocido'
 
     const queries = [
-      ['DELETE FROM Comentario WHERE id_etapa IN (SELECT id_etapa FROM Etapa WHERE id_proyecto = ?)', [id]],
-      ['DELETE FROM RegistroHoras WHERE id_etapa IN (SELECT id_etapa FROM Etapa WHERE id_proyecto = ?)', [id]],
-      ['DELETE FROM Asignacion WHERE id_etapa IN (SELECT id_etapa FROM Etapa WHERE id_proyecto = ?)', [id]],
-      ['DELETE FROM Sugerencia WHERE id_etapa IN (SELECT id_etapa FROM Etapa WHERE id_proyecto = ?)', [id]],
-      ['DELETE FROM Etapa WHERE id_proyecto = ?', [id]],
-      ['DELETE FROM Proyecto WHERE id_proyecto = ?', [id]]
+      ['DELETE FROM comentario WHERE id_etapa IN (SELECT id_etapa FROM etapa WHERE id_proyecto = ?)', [id]],
+      ['DELETE FROM registroHoras WHERE id_etapa IN (SELECT id_etapa FROM etapa WHERE id_proyecto = ?)', [id]],
+      ['DELETE FROM asignacion WHERE id_etapa IN (SELECT id_etapa FROM etapa WHERE id_proyecto = ?)', [id]],
+      ['DELETE FROM sugerencia WHERE id_etapa IN (SELECT id_etapa FROM etapa WHERE id_proyecto = ?)', [id]],
+      ['DELETE FROM etapa WHERE id_proyecto = ?', [id]],
+      ['DELETE FROM proyecto WHERE id_proyecto = ?', [id]]
     ]
 
     for (const [query, params] of queries) {
@@ -233,7 +233,7 @@ exports.eliminarProyecto = async (req, res) => {
     }
 
     await db.query(`
-      INSERT INTO Bitacora (id_usuario, id_proyecto, accion, fecha_hora)
+      INSERT INTO bitacora (id_usuario, id_proyecto, accion, fecha_hora)
       VALUES (?, ?, ?, NOW())
     `, [id_usuario, id, `Eliminó el proyecto "${nombre}" (ID: ${id})`])
 
@@ -250,7 +250,7 @@ exports.eliminarProyecto = async (req, res) => {
 exports.obtenerProyectoPorId = async (req, res) => {
   const { id } = req.params
   try {
-    const [rows] = await db.query('SELECT * FROM Proyecto WHERE id_proyecto = ?', [id])
+    const [rows] = await db.query('SELECT * FROM proyecto WHERE id_proyecto = ?', [id])
     if (!rows.length) {
       return res.status(404).json({ error: 'Proyecto no encontrado' })
     }
@@ -271,16 +271,16 @@ exports.obtenerLogProyecto = async (req, res) => {
     const [bitacora] = await db.query(`
       SELECT b.accion AS contenido, b.fecha_hora AS fecha,
              u.nombre_usuario AS autor, NULL AS etapa
-      FROM Bitacora b
-      JOIN Usuario u ON b.id_usuario = u.id_usuario
+      FROM bitacora b
+      JOIN usuario u ON b.id_usuario = u.id_usuario
       WHERE b.id_proyecto = ?
     `, [idProyecto])
 
     const [comentarios] = await db.query(`
       SELECT c.contenido, c.fecha, u.nombre_usuario AS autor, c.id_etapa AS etapa
-      FROM Comentario c
-      LEFT JOIN Etapa e ON c.id_etapa = e.id_etapa
-      LEFT JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM comentario c
+      LEFT JOIN etapa e ON c.id_etapa = e.id_etapa
+      LEFT JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       JOIN Usuario u ON c.id_usuario = u.id_usuario
       WHERE (p.id_proyecto = ? OR c.id_etapa IS NULL)
     `, [idProyecto])
