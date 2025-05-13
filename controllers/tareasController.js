@@ -163,7 +163,7 @@ exports.eliminarTarea = async (req, res) => {
   }
 
   try {
-    await db.query('DELETE FROM Tarea WHERE id_tarea = ?', [id])
+    await db.query('DELETE FROM tarea WHERE id_tarea = ?', [id])
     res.status(200).json({ message: 'Tarea eliminada correctamente' })
   } catch (err) {
     console.error('Error al eliminar tarea:', err)
