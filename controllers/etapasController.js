@@ -27,7 +27,7 @@ exports.agregarEtapa = async (req, res) => {
 
   try {
     await db.query(
-      `INSERT INTO Etapa (nombre_etapa, estado_etapa, fecha_inicio, fecha_fin, id_proyecto)
+      `INSERT INTO etapa (nombre_etapa, estado_etapa, fecha_inicio, fecha_fin, id_proyecto)
        VALUES (?, 'pendiente', NULL, NULL, ?)`,
       [nombre_etapa, id_proyecto]
     )
@@ -59,7 +59,7 @@ exports.agregarEtapaDesdeDetalles = async (req, res) => {
 
   try {
     const [result] = await db.query(`
-      INSERT INTO Etapa (nombre_etapa, estado_etapa, fecha_inicio, fecha_fin, id_proyecto)
+      INSERT INTO etapa (nombre_etapa, estado_etapa, fecha_inicio, fecha_fin, id_proyecto)
       VALUES (?, ?, ?, ?, ?)
     `, [
       nombre_etapa,
@@ -95,8 +95,8 @@ exports.obtenerEtapaPorId = async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT e.*, a.id_usuario AS tecnico
-      FROM Etapa e
-      LEFT JOIN Asignacion a ON e.id_etapa = a.id_etapa
+      FROM etapa e
+      LEFT JOIN asignacion a ON e.id_etapa = a.id_etapa
       WHERE e.id_etapa = ?
     `, [idEtapa])
 
@@ -157,14 +157,14 @@ exports.editarEtapa = async (req, res) => {
       return res.status(400).json({ error: 'No hay cambios para actualizar' })
     }
 
-    const query = `UPDATE Etapa SET ${updates.join(', ')} WHERE id_etapa = ?`
+    const query = `UPDATE etapa SET ${updates.join(', ')} WHERE id_etapa = ?`
     values.push(id_etapa)
     await db.query(query, values)
 
     const [[info]] = await db.query(`
       SELECT e.nombre_etapa, p.nombre_proyecto, p.id_proyecto
-      FROM Etapa e
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM etapa e
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       WHERE e.id_etapa = ?
     `, [id_etapa])
 
@@ -197,12 +197,12 @@ exports.eliminarEtapa = async (req, res) => {
 
     const [[data]] = await db.query(`
       SELECT e.nombre_etapa, p.nombre_proyecto, p.id_proyecto
-      FROM Etapa e
-      JOIN Proyecto p ON e.id_proyecto = p.id_proyecto
+      FROM etapa e
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
       WHERE e.id_etapa = ?
     `, [id_etapa])
 
-    await db.query('DELETE FROM Etapa WHERE id_etapa = ?', [id_etapa])
+    await db.query('DELETE FROM etapa WHERE id_etapa = ?', [id_etapa])
 
     await registrarEnBitacora(
       id_usuario,
@@ -235,9 +235,9 @@ exports.obtenerEtapasConHoras = async (req, res) => {
         ANY_VALUE(a.id_usuario) AS id_usuario,
         ANY_VALUE(u.nombre_usuario) AS tecnico,
         IFNULL(SUM(r.horas_trabajadas), 0) AS horas_reales
-      FROM Etapa e
-      LEFT JOIN Asignacion a ON e.id_etapa = a.id_etapa
-      LEFT JOIN Usuario u ON a.id_usuario = u.id_usuario
+      FROM etapa e
+      LEFT JOIN asignacion a ON e.id_etapa = a.id_etapa
+      LEFT JOIN usuario u ON a.id_usuario = u.id_usuario
       LEFT JOIN registrohoras r ON e.id_etapa = r.id_etapa
       WHERE e.id_proyecto = ?
       GROUP BY e.id_etapa
