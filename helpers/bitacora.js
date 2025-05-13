@@ -16,7 +16,7 @@ async function registrarEnBitacora(id_usuario, accion, id_proyecto) {
   }
 
   const query = `
-    INSERT INTO Bitacora (id_usuario, accion, id_proyecto, fecha_hora)
+    INSERT INTO bitacora (id_usuario, accion, id_proyecto, fecha_hora)
     VALUES (?, ?, ?, NOW())
   `
 
