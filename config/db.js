@@ -4,10 +4,10 @@ const mysql = require('mysql2/promise') // Cliente MySQL compatible con async/aw
 
 // Creación de un pool de conexiones para manejar múltiples consultas concurrentes de forma eficiente
 const pool = mysql.createPool({
-  host: 'localhost',         // Dirección del servidor MySQL
+  host: 'switchback.proxy.rlwy.net',         // Dirección del servidor MySQL
   user: 'root',              // Usuario con permisos de conexión
-  password: 'root',          // Contraseña del usuario
-  database: 'syspro',        // Nombre de la base de datos usada por el sistema
+  password: 'oJlDDBrEvhELleAieCDDXdpWEUdDKOsx',          // Contraseña del usuario
+  database: 'railway',        // Nombre de la base de datos usada por el sistema
   waitForConnections: true,  // Permite a las solicitudes esperar si no hay conexiones disponibles
   connectionLimit: 10,       // Número máximo de conexiones activas al mismo tiempo
   queueLimit: 0              // Número ilimitado de conexiones en espera
