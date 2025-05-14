@@ -36,11 +36,16 @@ exports.generarSugerencias = async (req, res) => {
     }
 
     const [etapasCortas] = await db.query(`
-      SELECT e.id_etapa, e.id_proyecto, e.nombre_etapa, e.horas_estimadas, e.fecha_inicio, p.nombre_proyecto
-      FROM etapa e
-      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
-      WHERE e.horas_estimadas <= 4 AND e.estado_etapa = 'pendiente'
-    `)
+       SELECT e.id_etapa, e.id_proyecto, e.nombre_etapa, e.horas_estimadas, e.fecha_inicio, p.nombre_proyecto
+        FROM etapa e
+        JOIN proyecto p ON e.id_proyecto = p.id_proyecto
+        WHERE 
+          e.horas_estimadas <= 4
+          AND e.estado_etapa = 'pendiente'
+          AND NOT EXISTS (
+      SELECT 1 FROM asignacion a WHERE a.id_etapa = e.id_etapa
+    )
+`)
 
     const sugerencias = []
     for (const [clave, bloque] of Object.entries(disponibilidad)) {
