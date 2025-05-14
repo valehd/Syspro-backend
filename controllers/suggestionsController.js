@@ -87,6 +87,7 @@ exports.tareasCortasDisponibles = async (req, res) => {
     const [rows] = await db.query(`
       SELECT 
         e.id_etapa,
+         e.id_proyecto, 
         e.nombre_etapa,
         e.horas_estimadas,
         e.estado_etapa,
