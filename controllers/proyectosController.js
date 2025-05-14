@@ -39,6 +39,7 @@ exports.crearProyecto = async (req, res) => {
     if (isNaN(hours) || hours <= 0) {
       return res.status(400).json({ error: `Horas inválidas en la etapa ${i + 1}` })
     }
+       // Validar técnico solo si viene informado
     if (technician && isNaN(technician)) {
       return res.status(400).json({ error: `ID de técnico inválido en la etapa ${i + 1}` })
     }
