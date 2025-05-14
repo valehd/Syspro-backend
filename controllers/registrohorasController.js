@@ -21,7 +21,7 @@ exports.iniciarRegistro = async (req, res) => {
     // Validación estricta: solo puede registrar si ya está asignado
     if (asignacion.length === 0) {
     return res.status(403).json({ error: "Este usuario no está asignado a esta etapa." })
-    }
+    
 
       const [[info]] = await db.query(`
         SELECT e.nombre_etapa, p.nombre_proyecto, p.id_proyecto, u.nombre_usuario
