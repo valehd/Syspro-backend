@@ -47,7 +47,7 @@ exports.generarSugerencias = async (req, res) => {
       const horas_libres = 8 - bloque.horas_usadas
       if (horas_libres >= 1) {
         for (const etapa of etapasCortas) {
-          if (new Date(etapa.fecha_inicio).toISOString().slice(0, 10) === bloque.fecha && etapa.horas_estimadas <= horas_libres) {
+          if ( new Date(etapa.fecha_inicio).toLocaleDateString('sv-SE') === bloque.fecha && etapa.horas_estimadas <= horas_libres) {
             sugerencias.push({
               tecnico: bloque.tecnico,
               id_usuario: bloque.id_usuario,
