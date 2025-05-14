@@ -19,7 +19,7 @@ exports.generarSugerencias = async (req, res) => {
       const end = new Date(asign.fecha_fin)
 
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const fecha = d.toISOString().slice(0, 10)
+        const fecha = d.toLocaleDateString('sv-SE')
         const clave = `${asign.nombre_usuario}_${fecha}`
 
         if (!disponibilidad[clave]) {
