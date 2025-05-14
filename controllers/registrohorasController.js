@@ -21,7 +21,7 @@ exports.iniciarRegistro = async (req, res) => {
     // Validación estricta: solo puede registrar si ya está asignado
     if (asignacion.length === 0) {
     return res.status(403).json({ error: "Este usuario no está asignado a esta etapa." })
-    
+    }
 
       const [[info]] = await db.query(`
         SELECT e.nombre_etapa, p.nombre_proyecto, p.id_proyecto, u.nombre_usuario
@@ -34,7 +34,7 @@ exports.iniciarRegistro = async (req, res) => {
 
       const descripcion = `Asignación automática: "${info.nombre_usuario}" fue asignado a la etapa "${info.nombre_etapa}" del proyecto "${info.nombre_proyecto}" (ID: ${info.id_proyecto})`
       await registrarEnBitacora(id_usuario, descripcion)
-    }
+    
 
     // Inserta el nuevo registro de horas
     await db.query(
