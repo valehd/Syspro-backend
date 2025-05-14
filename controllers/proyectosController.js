@@ -221,7 +221,7 @@ exports.eliminarProyecto = async (req, res) => {
 
     const queries = [
       ['DELETE FROM comentario WHERE id_etapa IN (SELECT id_etapa FROM etapa WHERE id_proyecto = ?)', [id]],
-      ['DELETE FROM registroHoras WHERE id_etapa IN (SELECT id_etapa FROM etapa WHERE id_proyecto = ?)', [id]],
+      ['DELETE FROM registrohoras WHERE id_etapa IN (SELECT id_etapa FROM etapa WHERE id_proyecto = ?)', [id]],
       ['DELETE FROM asignacion WHERE id_etapa IN (SELECT id_etapa FROM etapa WHERE id_proyecto = ?)', [id]],
       ['DELETE FROM sugerencia WHERE id_etapa IN (SELECT id_etapa FROM etapa WHERE id_proyecto = ?)', [id]],
       ['DELETE FROM etapa WHERE id_proyecto = ?', [id]],
