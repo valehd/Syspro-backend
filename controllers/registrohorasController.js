@@ -18,12 +18,10 @@ exports.iniciarRegistro = async (req, res) => {
       [id_usuario, id_etapa]
     )
 
-    // Si no existe, crea la asignación automáticamente y registra en bitácora
+    // Validación estricta: solo puede registrar si ya está asignado
     if (asignacion.length === 0) {
-      await db.query(
-        'INSERT INTO asignacion (id_usuario, id_etapa) VALUES (?, ?)',
-        [id_usuario, id_etapa]
-      )
+    return res.status(403).json({ error: "Este usuario no está asignado a esta etapa." })
+    }
 
       const [[info]] = await db.query(`
         SELECT e.nombre_etapa, p.nombre_proyecto, p.id_proyecto, u.nombre_usuario
