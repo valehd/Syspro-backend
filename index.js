@@ -10,7 +10,15 @@ const app = express()
 // ─────────────────────────────────────────────────────────────
 
 // Habilita CORS para permitir solicitudes desde el frontend
-app.use(cors())
+const allowedOrigins = [
+  'http://localhost:5173', // para desarrollo local
+  'https://sys-pro.netlify.app' // frontend desplegado en Netlify
+]
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}))
 
 // Permite recibir datos en formato JSON y texto plano
 app.use(express.json({ type: ['application/json', 'text/plain'] }))
