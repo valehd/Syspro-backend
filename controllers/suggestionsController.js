@@ -6,11 +6,11 @@ const db = require('../config/db')
  */
 exports.generarSugerencias = async (req, res) => {
   try {
-    const [asignaciones] = await db.query(`
-      SELECT u.id_usuario, u.nombre_usuario, e.fecha_inicio, e.fecha_fin, e.horas_estimadas
-      FROM asignacion a
-      JOIN usuario u ON a.id_usuario = u.id_usuario
-      JOIN etapa e ON a.id_etapa = e.id_etapa
+    const [asignaciones] = await db.query(`SELECT u.id_usuario, u.nombre_usuario, e.fecha_inicio, e.fecha_fin, e.horas_estimadas
+FROM asignacion a
+JOIN usuario u ON a.id_usuario = u.id_usuario
+JOIN etapa e ON a.id_etapa = e.id_etapa
+WHERE e.estado_etapa != 'finalizado'
     `)
 
     const disponibilidad = {}
