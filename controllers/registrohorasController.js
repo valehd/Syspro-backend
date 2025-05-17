@@ -94,6 +94,8 @@ if (horasTrabajadas < 0) horasTrabajadas = 0
     console.error('Error al detener registro:', err)
     res.status(500).json({ error: 'Error al detener timer' })
   }
+  // Redondeo final
+horasTrabajadas = horasTrabajadas.toFixed(2)
 }
 
 /**
