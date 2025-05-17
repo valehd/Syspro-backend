@@ -67,10 +67,21 @@ exports.detenerRegistro = async (req, res) => {
       return res.status(404).json({ error: 'No hay registro activo para esta etapa' })
     }
 
-    const registro = registros[0]
-    const inicio = new Date(`1970-01-01T${registro.hora_inicio}Z`)
-    const fin = new Date(`1970-01-01T${hora_fin}Z`)
-    const horasTrabajadas = ((fin - inicio) / (1000 * 60 * 60)).toFixed(2)
+const registro = registros[0]
+
+// Usamos la fecha original del inicio y la hora de inicio guardada
+const fechaInicio = registro.fecha // formato YYYY-MM-DD
+const inicio = new Date(`${fechaInicio}T${registro.hora_inicio}`)
+
+// Usamos la fecha de hoy para la hora de fin (la actual, asumida desde el frontend)
+const hoy = new Date().toISOString().split('T')[0]
+const fin = new Date(`${hoy}T${hora_fin}`)
+
+// Cálculo en horas redondeado a 2 decimales
+let horasTrabajadas = ((fin - inicio) / (1000 * 60 * 60)).toFixed(2)
+
+// Si por alguna razón es negativo, corregimos a 0
+if (horasTrabajadas < 0) horasTrabajadas = 0
 
     await db.query(`
       UPDATE registrohoras 
