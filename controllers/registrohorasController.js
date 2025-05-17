@@ -53,6 +53,9 @@ exports.iniciarRegistro = async (req, res) => {
 /**
  * Detiene el timer de una etapa activa, calculando las horas trabajadas.
  */
+/**
+ * Detiene el timer de una etapa activa, calculando las horas trabajadas.
+ */
 exports.detenerRegistro = async (req, res) => {
   const { id_usuario, id_etapa, hora_fin } = req.body
 
@@ -67,22 +70,31 @@ exports.detenerRegistro = async (req, res) => {
       return res.status(404).json({ error: 'No hay registro activo para esta etapa' })
     }
 
-const registro = registros[0]
+    const registro = registros[0]
 
-// Usamos la fecha original del inicio y la hora de inicio guardada
-const fechaInicio = registro.fecha // formato YYYY-MM-DD
-const inicio = new Date(`${fechaInicio}T${registro.hora_inicio}`)
+    // Combinamos fecha y hora para crear Date completos
+    const fechaInicio = registro.fecha // 'YYYY-MM-DD'
+    const inicio = new Date(`${fechaInicio}T${registro.hora_inicio}`)
+    const hoy = new Date().toISOString().split('T')[0]
+    const fin = new Date(`${hoy}T${hora_fin}`)
 
-// Usamos la fecha de hoy para la hora de fin (la actual, asumida desde el frontend)
-const hoy = new Date().toISOString().split('T')[0]
-const fin = new Date(`${hoy}T${hora_fin}`)
+    // Calculamos la diferencia en horas
+    let horasTrabajadas = (fin - inicio) / (1000 * 60 * 60)
 
-// Cálculo en horas redondeado a 2 decimales
-let horasTrabajadas = (fin - inicio) / (1000 * 60 * 60)
+    // Validaciones para evitar guardar valores inválidos
+    if (isNaN(horasTrabajadas) || horasTrabajadas < 0 || horasTrabajadas > 24) {
+      console.warn('Cálculo inválido de horas trabajadas:', {
+        inicio,
+        fin,
+        horasTrabajadas
+      })
+      return res.status(400).json({ error: 'Horas trabajadas inválidas. Verifica la hora de fin.' })
+    }
 
-// Si por alguna razón es negativo, corregimos a 0
-if (horasTrabajadas < 0) horasTrabajadas = 0
+    // Redondeo final y conversión segura a número
+    horasTrabajadas = parseFloat(horasTrabajadas.toFixed(2))
 
+    // Guardar en la base de datos
     await db.query(`
       UPDATE registrohoras 
       SET hora_fin = ?, horas_trabajadas = ?
@@ -94,9 +106,8 @@ if (horasTrabajadas < 0) horasTrabajadas = 0
     console.error('Error al detener registro:', err)
     res.status(500).json({ error: 'Error al detener timer' })
   }
-  // Redondeo final
-horasTrabajadas = horasTrabajadas.toFixed(2)
 }
+
 
 /**
  * Obtiene todas las tareas asignadas a un técnico con estado compuesto.
