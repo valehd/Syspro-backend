@@ -153,6 +153,41 @@ exports.obtenerTareasPorTecnico = async (req, res) => {
 }
 
 /**
+ * Devuelve todas las tareas asignadas a un técnico, incluyendo horas reales trabajadas por etapa.
+ */
+exports.obtenerTareasConHoras = async (req, res) => {
+  const { id_usuario } = req.params
+
+  try {
+    const [tareas] = await db.query(`
+      SELECT 
+        e.id_etapa,
+        e.nombre_etapa,
+        e.fecha_inicio AS start_date,
+        e.fecha_fin AS end_date,
+        e.estado_etapa AS status,
+        p.nombre_proyecto,
+        p.cliente,
+        (
+          SELECT SUM(horas_trabajadas)
+          FROM registrohoras
+          WHERE id_etapa = e.id_etapa AND id_usuario = ?
+        ) AS real_hours
+      FROM etapa e
+      JOIN asignacion a ON e.id_etapa = a.id_etapa
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
+      WHERE a.id_usuario = ?
+    `, [id_usuario, id_usuario])
+
+    res.json(tareas)
+  } catch (error) {
+    console.error('Error al obtener tareas con horas:', error)
+    res.status(500).json({ error: 'Error al obtener tareas con horas trabajadas' })
+  }
+}
+
+
+/**
  * Elimina una tarea por su ID.
  */
 exports.eliminarTarea = async (req, res) => {
