@@ -78,7 +78,7 @@ const hoy = new Date().toISOString().split('T')[0]
 const fin = new Date(`${hoy}T${hora_fin}`)
 
 // Cálculo en horas redondeado a 2 decimales
-let horasTrabajadas = ((fin - inicio) / (1000 * 60 * 60)).toFixed(2)
+let horasTrabajadas = (fin - inicio) / (1000 * 60 * 60)
 
 // Si por alguna razón es negativo, corregimos a 0
 if (horasTrabajadas < 0) horasTrabajadas = 0
