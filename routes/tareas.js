@@ -28,4 +28,7 @@ router.put('/:id', tareasController.editarTarea)
  */
 router.delete('/:id', tareasController.eliminarTarea)
 
+router.get('/por-tecnico-con-horas/:id_usuario', tareasController.obtenerTareasConHoras)
+
+
 module.exports = router
