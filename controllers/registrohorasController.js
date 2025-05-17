@@ -72,16 +72,19 @@ exports.detenerRegistro = async (req, res) => {
 
     const registro = registros[0]
 
-    // Combinamos fecha y hora para crear Date completos
-    const fechaInicio = registro.fecha // 'YYYY-MM-DD'
-    const inicio = new Date(`${fechaInicio}T${registro.hora_inicio}`)
+    // Construcción segura de fecha y hora de inicio
+    const [h, m, s] = registro.hora_inicio.split(':')
+    const inicio = new Date(registro.fecha)
+    inicio.setHours(h, m, s)
+
+    //Construcción segura de hora de fin
     const hoy = new Date().toISOString().split('T')[0]
     const fin = new Date(`${hoy}T${hora_fin}`)
 
-    // Calculamos la diferencia en horas
+    // Calcular diferencia
     let horasTrabajadas = (fin - inicio) / (1000 * 60 * 60)
 
-    // Validaciones para evitar guardar valores inválidos
+    // Validaciones
     if (isNaN(horasTrabajadas) || horasTrabajadas < 0 || horasTrabajadas > 24) {
       console.warn('Cálculo inválido de horas trabajadas:', {
         inicio,
@@ -91,10 +94,10 @@ exports.detenerRegistro = async (req, res) => {
       return res.status(400).json({ error: 'Horas trabajadas inválidas. Verifica la hora de fin.' })
     }
 
-    // Redondeo final y conversión segura a número
+    // Redondear
     horasTrabajadas = parseFloat(horasTrabajadas.toFixed(2))
 
-    // Guardar en la base de datos
+    // Actualizar DB
     await db.query(`
       UPDATE registrohoras 
       SET hora_fin = ?, horas_trabajadas = ?
