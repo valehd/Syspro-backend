@@ -22,6 +22,16 @@ exports.iniciarRegistro = async (req, res) => {
     if (asignacion.length === 0) {
     return res.status(403).json({ error: "Este usuario no está asignado a esta etapa." })
     }
+    //  verificar si ya hay un timer activo sin cerrar
+    const [activos] = await db.query(
+      `SELECT id_registro FROM registrohoras 
+       WHERE id_usuario = ? AND id_etapa = ? AND hora_fin IS NULL`,
+      [id_usuario, id_etapa]
+    )
+
+    if (activos.length > 0) {
+      return res.status(409).json({ error: 'Ya existe un registro activo para esta etapa.' })
+    }
 
       const [[info]] = await db.query(`
         SELECT e.nombre_etapa, p.nombre_proyecto, p.id_proyecto, u.nombre_usuario
