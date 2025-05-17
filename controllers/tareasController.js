@@ -158,21 +158,23 @@ exports.obtenerTareasPorTecnico = async (req, res) => {
 exports.obtenerTareasConHoras = async (req, res) => {
   const { id_usuario } = req.params
 
-  try {
+try {
     const [tareas] = await db.query(`
       SELECT 
         e.id_etapa,
-        e.nombre_etapa,
+        e.nombre_etapa AS task_stage,
+        p.nombre_proyecto AS project_name,
         e.fecha_inicio AS start_date,
-        e.fecha_fin AS end_date,
+        e.fecha_fin AS due_date,
         e.estado_etapa AS status,
-        p.nombre_proyecto,
-        p.cliente,
+        e.horas_estimadas AS estimated_hours,
         (
-          SELECT SUM(horas_trabajadas)
-          FROM registrohoras
-          WHERE id_etapa = e.id_etapa AND id_usuario = ?
-        ) AS real_hours
+          SELECT SUM(r.horas_trabajadas)
+          FROM registrohoras r
+          WHERE r.id_etapa = e.id_etapa AND r.id_usuario = ?
+        ) AS actual_hours,
+        '' AS comment, -- campo vacío para mantener compatibilidad si no hay comentarios
+        CASE WHEN e.estado_etapa = 'finalizado' THEN 'Yes' ELSE 'No' END AS finalizado
       FROM etapa e
       JOIN asignacion a ON e.id_etapa = a.id_etapa
       JOIN proyecto p ON e.id_proyecto = p.id_proyecto
