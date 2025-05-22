@@ -70,7 +70,7 @@ exports.generarSugerencias = async (req, res) => {
 
     // Paso 5: Generar sugerencias
     const sugerencias = []
-
+const sugerenciasPrevias = new Set() // para evitar duplicados
     for (const [clave, bloque] of Object.entries(disponibilidad)) {
       const horas_libres = 8 - bloque.horas_usadas
       if (horas_libres >= 1) {
@@ -78,24 +78,25 @@ exports.generarSugerencias = async (req, res) => {
      
           const cabeEnTiempo = etapa.horas_estimadas <= horas_libres
 
-            if (cabeEnTiempo) {
-            sugerencias.push({
-              tecnico: bloque.tecnico,
-              id_usuario: bloque.id_usuario,
-              fecha: bloque.fecha,
-              horas_libres,
-              tarea_sugerida: {
-                id_etapa: etapa.id_etapa,
-                id_proyecto: etapa.id_proyecto,
-                proyecto: etapa.nombre_proyecto,
-                etapa: etapa.nombre_etapa,
-                duracion: etapa.horas_estimadas
-              }
-            })
-          }
-        }
-      }
+            const claveSugerencia = `${bloque.id_usuario}_${etapa.id_etapa}`
+
+if (caeEnDia && cabeEnTiempo && !sugerenciasPrevias.has(claveSugerencia)) {
+  sugerencias.push({
+    tecnico: bloque.tecnico,
+    id_usuario: bloque.id_usuario,
+    fecha: bloque.fecha,
+    horas_libres,
+    tarea_sugerida: {
+      id_etapa: etapa.id_etapa,
+      id_proyecto: etapa.id_proyecto,
+      proyecto: etapa.nombre_proyecto,
+      etapa: etapa.nombre_etapa,
+      duracion: etapa.horas_estimadas
     }
+  })
+
+  sugerenciasPrevias.add(claveSugerencia)
+}
 
     res.json({ sugerencias })
   } catch (err) {
