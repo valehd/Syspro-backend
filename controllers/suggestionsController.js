@@ -6,14 +6,34 @@ const db = require('../config/db')
  */
 exports.generarSugerencias = async (req, res) => {
   try {
-    const [asignaciones] = await db.query(`SELECT u.id_usuario, u.nombre_usuario, e.fecha_inicio, e.fecha_fin, e.horas_estimadas
-FROM asignacion a
-JOIN usuario u ON a.id_usuario = u.id_usuario
-JOIN etapa e ON a.id_etapa = e.id_etapa
-WHERE e.estado_etapa != 'finalizado'
+    // Paso 1: Obtener todos los técnicos
+    const [tecnicos] = await db.query(`
+      SELECT id_usuario, nombre_usuario FROM usuario WHERE rol = 'tecnico'
     `)
 
+    // Paso 2: Armar disponibilidad para HOY con 0 horas usadas por defecto
+    const hoy = new Date().toLocaleDateString('sv-SE')
     const disponibilidad = {}
+
+    for (const tecnico of tecnicos) {
+      const clave = `${tecnico.nombre_usuario}_${hoy}`
+      disponibilidad[clave] = {
+        tecnico: tecnico.nombre_usuario,
+        id_usuario: tecnico.id_usuario,
+        fecha: hoy,
+        horas_usadas: 0
+      }
+    }
+
+    // Paso 3: Sumar horas reales si el técnico tiene asignaciones activas hoy
+    const [asignaciones] = await db.query(`
+      SELECT u.id_usuario, u.nombre_usuario, e.fecha_inicio, e.fecha_fin, e.horas_estimadas
+      FROM asignacion a
+      JOIN usuario u ON a.id_usuario = u.id_usuario
+      JOIN etapa e ON a.id_etapa = e.id_etapa
+      WHERE e.estado_etapa != 'finalizado'
+    `)
+
     for (const asign of asignaciones) {
       const start = new Date(asign.fecha_inicio)
       const end = new Date(asign.fecha_fin)
@@ -35,47 +55,47 @@ WHERE e.estado_etapa != 'finalizado'
       }
     }
 
+    // Paso 4: Obtener etapas cortas no asignadas
     const [etapasCortas] = await db.query(`
-       SELECT e.id_etapa, e.id_proyecto, e.nombre_etapa, e.horas_estimadas, e.fecha_inicio, p.nombre_proyecto
-        FROM etapa e
-        JOIN proyecto p ON e.id_proyecto = p.id_proyecto
-        WHERE 
-          e.horas_estimadas <= 4
-          AND e.estado_etapa = 'pendiente'
-          AND NOT EXISTS (
-      SELECT 1 FROM asignacion a WHERE a.id_etapa = e.id_etapa
-    )
-`)
+      SELECT e.id_etapa, e.id_proyecto, e.nombre_etapa, e.horas_estimadas, e.fecha_inicio, p.nombre_proyecto
+      FROM etapa e
+      JOIN proyecto p ON e.id_proyecto = p.id_proyecto
+      WHERE 
+        e.horas_estimadas <= 4
+        AND e.estado_etapa = 'pendiente'
+        AND NOT EXISTS (
+          SELECT 1 FROM asignacion a WHERE a.id_etapa = e.id_etapa
+        )
+    `)
 
-   const sugerencias = []
+    // Paso 5: Generar sugerencias
+    const sugerencias = []
 
-for (const [clave, bloque] of Object.entries(disponibilidad)) {
-  const horas_libres = 8 - bloque.horas_usadas
-  if (horas_libres >= 1) {
-    for (const etapa of etapasCortas) {
-      const mismaFecha = new Date(etapa.fecha_inicio).toLocaleDateString('sv-SE') === bloque.fecha
-      const cabeEnTiempo = etapa.horas_estimadas <= horas_libres
+    for (const [clave, bloque] of Object.entries(disponibilidad)) {
+      const horas_libres = 8 - bloque.horas_usadas
+      if (horas_libres >= 1) {
+        for (const etapa of etapasCortas) {
+          const mismaFecha = new Date(etapa.fecha_inicio).toLocaleDateString('sv-SE') === bloque.fecha
+          const cabeEnTiempo = etapa.horas_estimadas <= horas_libres
 
-      if (mismaFecha && cabeEnTiempo) {
-        sugerencias.push({
-          tecnico: bloque.tecnico,
-          id_usuario: bloque.id_usuario,
-          fecha: bloque.fecha,
-          horas_libres,
-          tarea_sugerida: {
-            id_etapa: etapa.id_etapa,
-            id_proyecto: etapa.id_proyecto,
-            proyecto: etapa.nombre_proyecto,
-            etapa: etapa.nombre_etapa,
-            duracion: etapa.horas_estimadas
+          if (mismaFecha && cabeEnTiempo) {
+            sugerencias.push({
+              tecnico: bloque.tecnico,
+              id_usuario: bloque.id_usuario,
+              fecha: bloque.fecha,
+              horas_libres,
+              tarea_sugerida: {
+                id_etapa: etapa.id_etapa,
+                id_proyecto: etapa.id_proyecto,
+                proyecto: etapa.nombre_proyecto,
+                etapa: etapa.nombre_etapa,
+                duracion: etapa.horas_estimadas
+              }
+            })
           }
-        })
+        }
       }
     }
-  }
-}
-
-
 
     res.json({ sugerencias })
   } catch (err) {
@@ -92,7 +112,7 @@ exports.tareasCortasDisponibles = async (req, res) => {
     const [rows] = await db.query(`
       SELECT 
         e.id_etapa,
-         e.id_proyecto, 
+        e.id_proyecto, 
         e.nombre_etapa,
         e.horas_estimadas,
         e.estado_etapa,
