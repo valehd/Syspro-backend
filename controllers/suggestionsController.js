@@ -47,18 +47,16 @@ WHERE e.estado_etapa != 'finalizado'
     )
 `)
 
-    const sugerencias = []
-const etapasAsignadas = new Set()
+   const sugerencias = []
 
 for (const [clave, bloque] of Object.entries(disponibilidad)) {
   const horas_libres = 8 - bloque.horas_usadas
   if (horas_libres >= 1) {
     for (const etapa of etapasCortas) {
       const mismaFecha = new Date(etapa.fecha_inicio).toLocaleDateString('sv-SE') === bloque.fecha
-      const noAsignada = !etapasAsignadas.has(etapa.id_etapa)
       const cabeEnTiempo = etapa.horas_estimadas <= horas_libres
 
-      if (mismaFecha && noAsignada && cabeEnTiempo) {
+      if (mismaFecha && cabeEnTiempo) {
         sugerencias.push({
           tecnico: bloque.tecnico,
           id_usuario: bloque.id_usuario,
@@ -72,11 +70,11 @@ for (const [clave, bloque] of Object.entries(disponibilidad)) {
             duracion: etapa.horas_estimadas
           }
         })
-        etapasAsignadas.add(etapa.id_etapa)
       }
     }
   }
 }
+
 
 
     res.json({ sugerencias })
