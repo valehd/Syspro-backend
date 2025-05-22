@@ -48,29 +48,36 @@ WHERE e.estado_etapa != 'finalizado'
 `)
 
     const sugerencias = []
-    for (const [clave, bloque] of Object.entries(disponibilidad)) {
-      const horas_libres = 8 - bloque.horas_usadas
-      if (horas_libres >= 1) {
-        for (const etapa of etapasCortas) {
-          if ( new Date(etapa.fecha_inicio).toLocaleDateString('sv-SE') === bloque.fecha && etapa.horas_estimadas <= horas_libres) {
-            sugerencias.push({
-              tecnico: bloque.tecnico,
-              id_usuario: bloque.id_usuario,
-              fecha: bloque.fecha,
-              horas_libres,
-              tarea_sugerida: {
-                id_etapa: etapa.id_etapa,
-                id_proyecto: etapa.id_proyecto,
-                proyecto: etapa.nombre_proyecto,
-                etapa: etapa.nombre_etapa,
-                duracion: etapa.horas_estimadas
-              }
-            })
-            break
+const etapasAsignadas = new Set()
+
+for (const [clave, bloque] of Object.entries(disponibilidad)) {
+  const horas_libres = 8 - bloque.horas_usadas
+  if (horas_libres >= 1) {
+    for (const etapa of etapasCortas) {
+      const mismaFecha = new Date(etapa.fecha_inicio).toLocaleDateString('sv-SE') === bloque.fecha
+      const noAsignada = !etapasAsignadas.has(etapa.id_etapa)
+      const cabeEnTiempo = etapa.horas_estimadas <= horas_libres
+
+      if (mismaFecha && noAsignada && cabeEnTiempo) {
+        sugerencias.push({
+          tecnico: bloque.tecnico,
+          id_usuario: bloque.id_usuario,
+          fecha: bloque.fecha,
+          horas_libres,
+          tarea_sugerida: {
+            id_etapa: etapa.id_etapa,
+            id_proyecto: etapa.id_proyecto,
+            proyecto: etapa.nombre_proyecto,
+            etapa: etapa.nombre_etapa,
+            duracion: etapa.horas_estimadas
           }
-        }
+        })
+        etapasAsignadas.add(etapa.id_etapa)
       }
     }
+  }
+}
+
 
     res.json({ sugerencias })
   } catch (err) {
