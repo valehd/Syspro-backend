@@ -68,42 +68,45 @@ exports.generarSugerencias = async (req, res) => {
         )
     `)
 
-    // Paso 5: Generar sugerencias
-    const sugerencias = []
-const sugerenciasPrevias = new Set() // para evitar duplicados
-    for (const [clave, bloque] of Object.entries(disponibilidad)) {
-      const horas_libres = 8 - bloque.horas_usadas
-      if (horas_libres >= 1) {
-        for (const etapa of etapasCortas) {
-     
-          const cabeEnTiempo = etapa.horas_estimadas <= horas_libres
 
-            const claveSugerencia = `${bloque.id_usuario}_${etapa.id_etapa}`
+  // Paso 5: Generar sugerencias
+const sugerencias = []
+const sugerenciasPrevias = new Set()
 
-if (caeEnDia && cabeEnTiempo && !sugerenciasPrevias.has(claveSugerencia)) {
-  sugerencias.push({
-    tecnico: bloque.tecnico,
-    id_usuario: bloque.id_usuario,
-    fecha: bloque.fecha,
-    horas_libres,
-    tarea_sugerida: {
-      id_etapa: etapa.id_etapa,
-      id_proyecto: etapa.id_proyecto,
-      proyecto: etapa.nombre_proyecto,
-      etapa: etapa.nombre_etapa,
-      duracion: etapa.horas_estimadas
+for (const [clave, bloque] of Object.entries(disponibilidad)) {
+  const horas_libres = 8 - bloque.horas_usadas
+  if (horas_libres >= 1) {
+    for (const etapa of etapasCortas) {
+      const etapaStart = new Date(etapa.fecha_inicio)
+      const etapaEnd = new Date(etapa.fecha_fin)
+      const diaDisponible = new Date(bloque.fecha)
+
+      const caeEnDia = diaDisponible >= etapaStart && diaDisponible <= etapaEnd
+      const cabeEnTiempo = etapa.horas_estimadas <= horas_libres
+      const claveSugerencia = `${bloque.id_usuario}_${etapa.id_etapa}`
+
+      if (caeEnDia && cabeEnTiempo && !sugerenciasPrevias.has(claveSugerencia)) {
+        sugerencias.push({
+          tecnico: bloque.tecnico,
+          id_usuario: bloque.id_usuario,
+          fecha: bloque.fecha,
+          horas_libres,
+          tarea_sugerida: {
+            id_etapa: etapa.id_etapa,
+            id_proyecto: etapa.id_proyecto,
+            proyecto: etapa.nombre_proyecto,
+            etapa: etapa.nombre_etapa,
+            duracion: etapa.horas_estimadas
+          }
+        })
+        sugerenciasPrevias.add(claveSugerencia)
+      }
     }
-  })
-
-  sugerenciasPrevias.add(claveSugerencia)
-}
-
-    res.json({ sugerencias })
-  } catch (err) {
-    console.error('Error en generarSugerencias:', err)
-    res.status(500).json({ error: 'Error al generar sugerencias inteligentes' })
   }
 }
+
+res.json({ sugerencias })
+
 
 /**
  * Lista tareas cortas no asignadas (<= 3 horas, estado pendiente).
