@@ -1,4 +1,4 @@
-# SYS-PRO Backend
+# Backend
 
 Este repositorio contiene el backend del sistema SYS-PRO, una plataforma de gestión de proyectos técnicos desarrollada para optimizar la planificación, asignación de tareas y seguimiento de proyectos.
 
