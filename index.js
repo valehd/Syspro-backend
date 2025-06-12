@@ -12,7 +12,7 @@ const app = express()
 // Habilita CORS para permitir solicitudes desde el frontend
 const allowedOrigins = [
   'http://localhost:5173', // para desarrollo local
-  'https://sys-pro.netlify.app' // frontend desplegado en Netlify
+  'https://vhernandezd.netlify.app/' // frontend desplegado en Netlify
 ]
 
 app.use(cors({
